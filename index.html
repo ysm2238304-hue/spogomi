@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>南投 SPOGOMI 環境運動挑戰賽 - 現場工作手冊</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding-bottom: env(safe-area-inset-bottom, 24px);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .ios-card {
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+    .chalkboard-bg {
+      background-color: #1e293b;
+      border: 6px solid #475569;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.6);
+    }
+    .stripe-danger {
+      background: repeating-linear-gradient(
+        -45deg,
+        #dc2626,
+        #dc2626 10px,
+        #1e293b 10px,
+        #1e293b 20px
+      );
+    }
+    .stripe-warning {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f59e0b,
+        #f59e0b 10px,
+        #1e293b 10px,
+        #1e293b 20px
+      );
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased">
+
+  <!-- 浮動提示元件 (Toast) -->
+  <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 -translate-y-4 scale-95 border border-slate-700">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastMessage">系統提示</span>
+  </div>
+
+  <!-- 全螢幕燈箱視窗 (Lightbox Modal) -->
+  <div id="imageLightboxModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex flex-col justify-between p-4 transition-opacity duration-200">
+    <div class="flex items-center justify-between pt-safe">
+      <div class="text-white text-xs font-black truncate pr-4" id="lightboxTitle">照片檢視</div>
+      <button onclick="closeLightbox()" class="text-white bg-white/20 hover:bg-white/30 rounded-full w-8 h-8 flex items-center justify-center font-bold text-base active:scale-90 transition">
+        ✕
+      </button>
+    </div>
+    <div class="flex-1 flex items-center justify-center overflow-auto my-2">
+      <img id="lightboxImage" src="" alt="放大照片" class="max-h-[75vh] max-w-full rounded-xl object-contain shadow-2xl">
+    </div>
+    <div class="pb-safe text-center">
+      <p id="lightboxDescription" class="text-xs text-slate-300 font-medium bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60 leading-relaxed max-w-lg mx-auto"></p>
+    </div>
+  </div>
+
+  <!-- 頂部主標題與賽事狀態看板 -->
+  <header class="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white sticky top-0 z-30 shadow-md">
+    <div class="max-w-md mx-auto px-4 pt-3 pb-2.5 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-1.5">
+          <span class="bg-amber-400 text-emerald-950 font-black text-[10px] px-1.5 py-0.5 rounded shadow-sm">官方手冊</span>
+          <span class="text-[11px] font-bold text-emerald-200 tracking-wider">115/10/19 (一) 09:00</span>
+        </div>
+        <h1 class="text-base font-black tracking-tight flex items-center gap-1 mt-0.5">
+          <span>淨好玩！南投 SPOGOMI</span>
+        </h1>
+      </div>
+      <div class="text-right">
+        <span class="text-[10px] block text-emerald-200 font-semibold">主會場：慈善宮廣場</span>
+        <span class="inline-block bg-white/20 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full mt-0.5 border border-white/20">
+          半徑 1.4 km
+        </span>
+      </div>
+    </div>
+
+    <!-- 雙階段計時器常駐控制欄 -->
+    <div class="bg-emerald-950/70 border-t border-emerald-600/40 px-4 py-2">
+      <div class="max-w-md mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" id="timerPulseDot"></div>
+          <div>
+            <span id="timerStageLabel" class="text-[10px] font-black text-amber-300 block leading-tight">40分鐘 撿垃圾階段</span>
+            <span id="timerDisplay" class="font-mono text-xl font-black tracking-wider text-white">40:00</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="toggleTimer()" id="btnTimerToggle" class="bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-sm active:scale-95 transition">
+            開始
+          </button>
+          <button onclick="switchTimerStage()" class="bg-emerald-800/90 text-emerald-100 font-bold text-xs px-2 py-1.5 rounded-xl active:scale-95 transition border border-emerald-700">
+            切換階段
+          </button>
+          <button onclick="resetTimer()" class="bg-white/10 text-white font-bold text-xs px-2 py-1.5 rounded-xl active:scale-95 transition">
+            重置
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容視窗容器 (預留 iOS 底部導航欄距離) -->
+  <main class="flex-1 max-w-md w-full mx-auto p-3.5 space-y-4 pb-28">
+
+    <!-- ========================================== -->
+    <!-- 視圖 1: 賽事總覽 & 議程 (TAB: OVERVIEW)     -->
+    <!-- ========================================== -->
+    <section id="viewOverview" class="space-y-3.5">
+      
+      <!-- 活動基本資訊卡 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-emerald-800 flex items-center gap-1">
+            <span>📍</span> 辦理時間與場地說明
+          </span>
+          <span class="text-[10px] font-bold text-slate-400">115年10月19日 (星期一)</span>
+        </div>
+        <div class="text-xs text-slate-700 leading-relaxed space-y-1">
+          <p>• <b>活動時間</b>：09:00 - 11:30</p>
+          <p>• <b>工作人員</b>：請於 <span class="text-rose-600 font-extrabold">08:30 前抵達</span> (現場備有早餐)。</p>
+          <p>• <b>活動地點</b>：南投市慈善宮前廣場 (平山里工業路3之15號)。</p>
+          <p>• <b>競賽範圍</b>：慈善宮前同源住宅區周邊路段，<b>活動半徑 1.4 公里</b>。</p>
+          <p>• <b>參賽規模</b>：每 3 人為一隊，共計 10 支隊伍。</p>
+        </div>
+      </div>
+
+      <!-- 工作人員衣著規定 -->
+      <div class="bg-amber-50 rounded-2xl p-3.5 border border-amber-200 ios-card">
+        <h3 class="text-xs font-black text-amber-900 flex items-center gap-1.5 mb-1.5">
+          <span>👔</span> 工作人員衣著與場佈規範
+        </h3>
+        <ul class="text-xs text-amber-800 space-y-1">
+          <li>• <b>環保局人員</b>：請穿著「局背心」。</li>
+          <li>• <b>大立人員</b>：請穿著「大立制服」；未有制服者請穿著「黑色上衣」。</li>
+          <li>• 各組抵達後，請立即進行各區場佈物品定位及設備確認。</li>
+        </ul>
+      </div>
+
+      <!-- 活動場地空照與配置圖 -->
+      <div class="bg-white rounded-2xl p-3.5 ios-card border border-slate-200/80 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+            <span>🛰️</span> 慈善宮主會場空照配置圖
+          </h3>
+          <span class="text-[10px] font-bold text-slate-400">點擊看大圖</span>
+        </div>
+        <div onclick="openLightbox('cishan_satellite', '慈善宮主會場空照配置圖', '標註主舞台、長官貴賓停車區、民眾停車區、統計區與清潔隊專用停車位。')" class="cursor-pointer relative overflow-hidden rounded-xl border border-slate-200 group bg-slate-100">
+          <img src="./images/cishan_satellite.png" onerror="handleImageFallback(this, 'cishan_satellite.png')" alt="慈善宮空照配置圖" class="w-full h-44 object-cover group-active:scale-95 transition">
+          <div class="absolute bottom-2 left-2 bg-slate-900/80 text-white text-[10px] px-2 py-0.5 rounded font-bold">
+            🔍 點擊全螢幕放大
+          </div>
+        </div>
+      </div>
+
+      <!-- 活動議程時程表 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2">
+        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+          <span>⏱️</span> 大會議程時程表
+        </h3>
+        <div class="divide-y divide-slate-100 text-xs">
+          <div class="py-1.5 flex justify-between"><span class="font-bold text-slate-500">09:00 - 09:30</span><span class="font-bold text-slate-800">報到 (大立)</span></div>
+          <div class="py-1.5 flex justify-between"><span class="font-bold text-slate-500">09:30 - 09:35</span><span class="font-bold text-slate-800">長官致詞 (環保局)</span></div>
+          <div class="py-1.5 flex justify-between"><span class="font-bold text-slate-500">09:35 - 09:50</span><span class="font-bold text-slate-800">活動規則說明及分發掃具</span></div>
+          <div class="py-1.5 flex justify-between bg-amber-50/70 px-2 rounded-lg"><span class="font-black text-amber-800">09:50 - 10:30</span><span class="font-black text-amber-900">40分鐘 撿垃圾競賽</span></div>
+          <div class="py-1.5 flex justify-between bg-emerald-50/70 px-2 rounded-lg"><span class="font-black text-emerald-800">10:30 - 10:50</span><span class="font-black text-emerald-900">20分鐘 垃圾自主分類</span></div>
+          <div class="py-1.5 flex justify-between"><span class="font-bold text-slate-500">10:50 - 11:10</span><span class="font-bold text-slate-800">成果統計與排名 (大立)</span></div>
+          <div class="py-1.5 flex justify-between"><span class="font-bold text-slate-500">11:10 - 11:30</span><span class="font-bold text-slate-800">頒獎典禮 (大立)</span></div>
+          <div class="py-1.5 flex justify-between"><span class="font-bold text-slate-500">11:30</span><span class="font-bold text-slate-800">發放餐盒、賦歸</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 視圖 2: 清掃路線 & 禁撿區域 (TAB: ROUTE)    -->
+    <!-- ========================================== -->
+    <section id="viewRoute" class="space-y-3.5 hidden">
+      
+      <!-- 競賽路線官方地圖 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+            <span>🗺️</span> 清掃範圍官方地圖 (半徑 1.4 km)
+          </h3>
+          <span class="text-[10px] font-bold text-slate-400">點擊看大圖</span>
+        </div>
+        <p class="text-[11px] text-slate-500">以工業路、仁和路、同源路及同源路一街所圍之區域作為清掃範圍。</p>
+        <div onclick="openLightbox('route_map', '清掃範圍官方地圖', '以工業路、仁和路、同源路及同源路一街所圍之區域作為清掃比賽範圍，半徑1.4公里。超出範圍撿拾一律不予計分。')" class="cursor-pointer relative overflow-hidden rounded-xl border border-slate-200 group bg-slate-100">
+          <img src="./images/route_map.png" onerror="handleImageFallback(this, 'route_map.png')" alt="清掃地圖" class="w-full h-44 object-cover group-active:scale-95 transition">
+          <div class="absolute bottom-2 left-2 bg-slate-900/80 text-white text-[10px] px-2 py-0.5 rounded font-bold">
+            🔍 點擊放大路線圖
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 大轉角實景照片 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3">
+        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+          <span>🚦</span> 關鍵轉角指引街景 (3處)
+        </h3>
+        <div class="grid grid-cols-3 gap-2">
+          <div onclick="openLightbox('corner_1', '轉角一：仁和路轉同源路', '靠近全家便利商店交叉口，注意車流與參賽隊伍安全。')" class="cursor-pointer group text-center">
+            <div class="h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+              <img src="./images/corner_1.png" onerror="handleImageFallback(this, 'corner_1.png')" alt="轉角1" class="w-full h-full object-cover group-active:scale-95 transition">
+            </div>
+            <span class="text-[10px] font-bold text-slate-700 block mt-1">仁和轉同源</span>
+          </div>
+          <div onclick="openLightbox('corner_2', '轉角二：同源路轉同源一街', '大樓圍牆與黃色網格線轉角處，注意隊伍保持10米距離。')" class="cursor-pointer group text-center">
+            <div class="h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+              <img src="./images/corner_2.png" onerror="handleImageFallback(this, 'corner_2.png')" alt="轉角2" class="w-full h-full object-cover group-active:scale-95 transition">
+            </div>
+            <span class="text-[10px] font-bold text-slate-700 block mt-1">同源轉同源一街</span>
+          </div>
+          <div onclick="openLightbox('corner_3', '轉角三：仁和路轉工業路', '南投市慈善宮大牌樓前路口，進入工業路段請特別注意交通安全。')" class="cursor-pointer group text-center">
+            <div class="h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+              <img src="./images/corner_3.png" onerror="handleImageFallback(this, 'corner_3.png')" alt="轉角3" class="w-full h-full object-cover group-active:scale-95 transition">
+            </div>
+            <span class="text-[10px] font-bold text-slate-700 block mt-1">慈善宮大牌樓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 特別禁撿專區：同源路二街32巷30號 (3 個視角切換) -->
+      <div class="bg-white rounded-2xl p-4 ios-card border-2 border-rose-300 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-rose-700 flex items-center gap-1.5">
+            <span>🚫</span> 特別禁撿專區 (同源路二街32巷30號)
+          </span>
+          <span class="text-[10px] font-black bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full">嚴禁撿拾</span>
+        </div>
+        <p class="text-[11px] text-slate-600 leading-tight">
+          該址周邊私人雜物堆積處<b>一律嚴禁撿拾</b>。撿拾不計分，經制止仍執意撿拾視同違規扣 100 點！
+        </p>
+
+        <!-- 3 個視角切換按鈕 (grid-cols-3) -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl">
+          <button onclick="setForbiddenTab(1)" id="btnForbid1" class="py-1 text-[11px] font-extrabold rounded-lg bg-rose-600 text-white transition shadow-sm">
+            ① 前及左側
+          </button>
+          <button onclick="setForbiddenTab(2)" id="btnForbid2" class="py-1 text-[11px] font-bold rounded-lg text-slate-600 transition">
+            ② 前右側
+          </button>
+          <button onclick="setForbiddenTab(3)" id="btnForbid3" class="py-1 text-[11px] font-bold rounded-lg text-slate-600 transition">
+            ③ 售地看板處
+          </button>
+        </div>
+
+        <!-- 禁撿實景圖與說明容器 -->
+        <div onclick="openCurrentForbiddenLightbox()" class="cursor-pointer relative overflow-hidden rounded-xl border border-rose-200 group bg-slate-100">
+          <img id="forbiddenImage" src="./images/forbidden_1.png" onerror="handleImageFallback(this, 'forbidden_1.png')" alt="禁撿實景" class="w-full h-44 object-cover group-active:scale-95 transition">
+          <div class="absolute bottom-2 left-2 bg-rose-950/85 text-rose-100 text-[10px] px-2 py-0.5 rounded font-bold flex items-center gap-1">
+            <span>🚫</span> <span id="forbiddenBadgeText">視角 ①：建築物前及左側砂袋堆</span>
+          </div>
+        </div>
+        <p id="forbiddenDescText" class="text-xs text-rose-900 bg-rose-50 p-2.5 rounded-xl border border-rose-200/70 font-medium">
+          建築物鐵捲門前方及左側堆置大量私人沙袋、建材與廢棄物，嚴禁任何隊伍在此撿拾。
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 視圖 3: 裁判手冊 & 競賽規則 (TAB: RULES)    -->
+    <!-- ========================================== -->
+    <section id="viewRules" class="space-y-3.5 hidden">
+      
+      <!-- 裁判雙核心防線 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3">
+        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+          <span>🛡️</span> 裁判執法雙核心防線
+        </h3>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 space-y-1">
+            <span class="font-black text-emerald-900 block flex items-center gap-1">
+              <span>🏃</span> 隨行裁判 (貼身)
+            </span>
+            <p class="text-[11px] text-emerald-800 leading-snug">• 維持 2~3 公尺貼身跟隨。</p>
+            <p class="text-[11px] text-emerald-800 leading-snug">• 實施動態審判與阻絕禁撿物。</p>
+            <p class="text-[11px] text-rose-700 font-extrabold leading-snug">• <b>全程不得給予任何指導建議</b>。</p>
+            <p class="text-[11px] text-emerald-800 leading-snug">• 監督 20 分鐘選手自主分類。</p>
+            <p class="text-[11px] text-emerald-800 leading-snug">• 協助人員全程拍照存證。</p>
+          </div>
+          <div class="bg-sky-50/70 p-3 rounded-xl border border-sky-200 space-y-1">
+            <span class="font-black text-sky-900 block flex items-center gap-1">
+              <span>⚖️</span> 秤重區裁判 (定點)
+            </span>
+            <p class="text-[11px] text-sky-800 leading-snug">• 賽前磅秤歸零及確認準確度。</p>
+            <p class="text-[11px] text-sky-800 leading-snug">• 防弊抽查與分類錯誤判處。</p>
+            <p class="text-[11px] text-sky-800 leading-snug">• 依序秤量、複誦覆查。</p>
+            <p class="text-[11px] text-sky-800 leading-snug">• 填寫紀錄小卡並請隊長簽名。</p>
+            <p class="text-[11px] text-sky-800 leading-snug">• 電腦即時登錄與排名統計。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 黑板核心規則 -->
+      <div class="chalkboard-bg rounded-2xl p-4 text-white space-y-2.5">
+        <h3 class="text-xs font-black text-amber-300 tracking-wide flex items-center gap-1.5">
+          <span>📋</span> 比賽核心規範 (時間、空間與移動)
+        </h3>
+        <div class="grid grid-cols-2 gap-2 text-xs text-slate-200">
+          <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+            <span class="text-amber-400 font-bold block mb-0.5">⏱️ 40分鐘 撿拾</span>
+            超出指定範圍及禁撿區之垃圾一律不予計分。
+          </div>
+          <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+            <span class="text-amber-400 font-bold block mb-0.5">🚶 絕對禁止跑步</span>
+            僅得以快走移動，過程中隨時應保持至少一隻腳著地。
+          </div>
+          <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+            <span class="text-amber-400 font-bold block mb-0.5">👥 團隊間距 ≤ 10m</span>
+            第一名與最後一名間距不得超過10公尺，嚴禁單兵作戰。
+          </div>
+          <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+            <span class="text-amber-400 font-bold block mb-0.5">🚷 明確禁止進入</span>
+            嚴禁進入河川、水域、私人土地、騎樓與公告區域。
+          </div>
+        </div>
+        <div class="bg-slate-800/90 p-2 rounded-xl border border-slate-700 text-[11px] text-slate-300">
+          ★ <b>爭奪判定</b>：兩隊同時發現同一垃圾，以夾子或手最先觸碰者取得。無法判定由大會裁判裁決。
+        </div>
+      </div>
+
+      <!-- 官方垃圾分類 A3 海報速查卡 (點擊看大圖 + 常見實物圖例速查) -->
+      <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl p-3.5 border-2 border-emerald-300 ios-card space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+            <span>🪧</span> 官方垃圾分類說明 A3 海報
+          </span>
+          <button onclick="openLightbox('classification_poster', '大會官方垃圾分類說明 (A3 海報)', '詳細列明一般垃圾、資源回收、菸蒂與禁止撿拾項目之計量標準與常見實物圖例。')" class="bg-emerald-700 hover:bg-emerald-600 text-white text-[11px] font-black px-2.5 py-1 rounded-xl shadow-sm active:scale-95 transition flex items-center gap-1">
+            <span>🔍</span> 點擊放大海報
+          </button>
+        </div>
+        
+        <!-- 海報實物分類快速比對欄 -->
+        <div class="grid grid-cols-3 gap-1.5 text-[11px]">
+          <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-slate-800 text-xs">🗑️ 一般垃圾</span>
+              <span class="text-[9px] bg-slate-100 text-slate-600 px-1 py-0.5 rounded font-bold">10點/100g</span>
+            </div>
+            <p class="text-[10px] text-slate-600 leading-tight">
+              <b>常見圖例</b>：洋芋片袋(不可回收鋁箔)、衛生紙、發票收據、尿布、即溶咖啡包、茶包。
+            </p>
+          </div>
+          <div class="bg-white p-2 rounded-xl border border-sky-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-sky-900 text-xs">♻️ 資源回收</span>
+              <span class="text-[9px] bg-sky-100 text-sky-700 px-1 py-0.5 rounded font-bold">20點/100g</span>
+            </div>
+            <p class="text-[10px] text-sky-800 leading-tight">
+              <b>常見圖例</b>：寶特瓶、鐵鋁罐、手搖塑膠杯、牛奶盒、紙餐盒、紙箱、乾電池等。
+            </p>
+          </div>
+          <div class="bg-white p-2 rounded-xl border border-amber-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-amber-950 text-xs">🚬 菸蒂(專用)</span>
+              <span class="text-[9px] bg-amber-100 text-amber-800 px-1 py-0.5 rounded font-bold">200點/50g</span>
+            </div>
+            <p class="text-[10px] text-amber-900 leading-tight">
+              <b>常見圖例</b>：路邊隨處可見之香菸濾嘴。須集中放入專用袋。
+            </p>
+          </div>
+        </div>
+        <p class="text-[10px] text-emerald-800 font-medium bg-emerald-100/70 px-2 py-1 rounded-lg">
+          ★ <b>爭議物判斷準則</b>：鋁箔洋芋片包裝、發票及紙尿布屬於不可再利用之「一般垃圾」，請勿誤入回收袋。
+        </p>
+      </div>
+
+      <!-- 分類初判 SOP -->
+      <div class="bg-emerald-50 rounded-2xl p-3.5 border border-emerald-300 ios-card">
+        <h4 class="text-xs font-black text-emerald-950 flex items-center gap-1.5 mb-1">
+          <span>♻️</span> 隨行裁判分類初判 SOP
+        </h4>
+        <p class="text-xs text-emerald-900 leading-relaxed">
+          20分鐘分類結束後，<b>隨行裁判須先進行初步檢查</b>。若確認分類錯誤，<b>立即取出不予計分</b>；若有爭議疑慮之物品，則送至秤重區由裁判合議判定。
+        </p>
+      </div>
+
+      <!-- 違規判罰標準 (黃牌 / 扣分 / 紅牌) -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3">
+        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+          <span>⚠️</span> 違規處理標準 (黃牌警告 / 扣點機制)
+        </h3>
+
+        <!-- 黃牌警告 (第一次) -->
+        <div class="border-l-4 border-amber-500 bg-amber-50/70 p-2.5 rounded-r-xl space-y-1">
+          <span class="text-xs font-black text-amber-900 flex items-center gap-1">
+            <span>🟨</span> 第一次予以黃牌警告：
+          </span>
+          <p class="text-[11px] text-amber-800">1. 競賽期間跑步 (雙腳同時騰空)。</p>
+          <p class="text-[11px] text-amber-800">2. 隊員超出裁判可視範圍或距離超過 10 公尺。</p>
+          <p class="text-[11px] text-amber-800">3. 離開指定範圍或進入禁止區域。</p>
+          <p class="text-[11px] text-amber-900 font-bold">4. 意圖撿拾危險物品 (裁判先出示黃牌制止；若執意撿拾則升級扣分)。</p>
+        </div>
+
+        <!-- 紅牌機制 (扣 100 點) -->
+        <div class="border-l-4 border-rose-600 bg-rose-50/70 p-2.5 rounded-r-xl space-y-1">
+          <span class="text-xs font-black text-rose-900 flex items-center gap-1">
+            <span>🟥</span> 重大違規紅牌處分 (每次扣 100 點)：
+          </span>
+          <p class="text-[11px] text-rose-800">• 不當競賽行為 (作弊、使用交通工具、暴力辱罵)。</p>
+          <p class="text-[11px] text-rose-800">• 刻意增加重量 (加水、混泥沙、私取垃圾桶集中物)。</p>
+          <p class="text-[11px] text-rose-800">• 警告後重複違規或未聽從裁判指示。</p>
+          <p class="text-[10px] text-rose-700 font-extrabold mt-0.5">★ 隨行協助人員須立即拍照證明加扣分事證！</p>
+        </div>
+
+        <!-- 逾時歸隊規則 -->
+        <div class="border-l-4 border-slate-600 bg-slate-50 p-2.5 rounded-r-xl text-xs space-y-1">
+          <span class="font-black text-slate-800 block">⏰ 逾時歸隊扣分標準：</span>
+          <p class="text-[11px] text-slate-700">• 每逾時 1 分鐘以內扣 10 點 (1~59秒扣10點、60~119秒扣20點，以此類推)。</p>
+          <p class="text-[11px] text-rose-600 font-black">• 逾時超過 10 分鐘仍未跨過終點線者，直接取消參賽資格！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 視圖 4: 現場智慧計分器 (TAB: CALCULATOR)    -->
+    <!-- ========================================== -->
+    <section id="viewCalc" class="space-y-3.5 hidden">
+      
+      <!-- 總分即時看板 (0ms 延遲動態計算) -->
+      <div class="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-4 text-white ios-card shadow-lg space-y-3">
+        <div class="flex items-center justify-between border-b border-emerald-700/60 pb-2">
+          <span class="text-xs font-bold text-emerald-200">🏆 SPOGOMI 即時結算總積分</span>
+          <span id="calcStatusText" class="text-[10px] bg-emerald-700 px-2 py-0.5 rounded-full font-bold">即時換算中</span>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <div>
+            <span class="text-4xl font-mono font-black tracking-tight" id="displayTotalPoints">0</span>
+            <span class="text-sm font-bold ml-1 text-emerald-200">點 (Points)</span>
+          </div>
+          <div class="text-right text-[11px] text-emerald-200">
+            <span class="block">扣分總計：<b class="text-amber-300 font-mono" id="displayDeductions">0</b> 點</span>
+            <span class="block text-[10px] text-emerald-300" id="displayOvertimeText">逾時: 0 秒 (扣0點)</span>
+          </div>
+        </div>
+        
+        <!-- 各項目得點微型看板 -->
+        <div class="grid grid-cols-4 gap-1.5 pt-1 text-center border-t border-emerald-700/50 text-[10px]">
+          <div class="bg-emerald-950/40 p-1.5 rounded-xl">
+            <span class="text-emerald-300 block">一般垃圾</span>
+            <span class="font-mono font-black text-white text-xs" id="subGeneral">0</span>
+          </div>
+          <div class="bg-emerald-950/40 p-1.5 rounded-xl">
+            <span class="text-sky-300 block">資源回收</span>
+            <span class="font-mono font-black text-white text-xs" id="subRecycle">0</span>
+          </div>
+          <div class="bg-emerald-950/40 p-1.5 rounded-xl">
+            <span class="text-amber-300 block">菸蒂</span>
+            <span class="font-mono font-black text-white text-xs" id="subCigarette">0</span>
+          </div>
+          <div class="bg-rose-950/50 p-1.5 rounded-xl border border-rose-500/30">
+            <span class="text-rose-300 block">紅牌/罰扣</span>
+            <span class="font-mono font-black text-rose-200 text-xs" id="subRedCard">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 選擇參賽隊伍 (連動現場抽籤結果) -->
+      <div class="bg-white rounded-2xl p-3.5 ios-card border border-emerald-300 space-y-2">
+        <div class="flex items-center justify-between">
+          <label for="calcTeamSelect" class="text-xs font-black text-slate-800 flex items-center gap-1">
+            <span>🎯</span> 選擇計分隊伍 (抽籤連動)：
+          </label>
+          <span id="calcAssignedRefereeText" class="text-[11px] font-bold text-slate-500">尚未選擇</span>
+        </div>
+        <select id="calcTeamSelect" onchange="onCalcTeamChange()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-bold rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <option value="">-- 請選擇隊伍 (或不指定) --</option>
+        </select>
+      </div>
+
+      <!-- 克數輸入表單 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-800 flex items-center gap-1">
+            <span>⚖️</span> 秤重克數輸入 (每克即時換算)
+          </h3>
+          <button onclick="resetCalculator()" class="text-[11px] text-slate-400 hover:text-rose-600 font-bold active:scale-95 transition">
+            全部清空
+          </button>
+        </div>
+
+        <!-- 一般垃圾 -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-black text-slate-800 block">一般垃圾</span>
+            <span class="text-[10px] text-slate-500">100g = 10點 (0.1點/g)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <input type="number" id="inputGeneral" oninput="calculateScore()" placeholder="0" min="0" class="w-24 bg-white border border-slate-300 text-right font-mono font-bold text-sm px-2.5 py-1.5 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <span class="text-xs font-bold text-slate-500">g</span>
+          </div>
+        </div>
+
+        <!-- 資源回收 -->
+        <div class="bg-sky-50/70 p-3 rounded-xl border border-sky-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-black text-sky-950 block">資源回收</span>
+            <span class="text-[10px] text-sky-700">100g = 20點 (0.2點/g)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <input type="number" id="inputRecycle" oninput="calculateScore()" placeholder="0" min="0" class="w-24 bg-white border border-sky-300 text-right font-mono font-bold text-sm px-2.5 py-1.5 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <span class="text-xs font-bold text-sky-800">g</span>
+          </div>
+        </div>
+
+        <!-- 菸蒂 -->
+        <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-black text-amber-950 block">菸蒂 (專用袋)</span>
+            <span class="text-[10px] text-amber-800">50g = 200點 (4點/g)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <input type="number" id="inputCigarette" oninput="calculateScore()" placeholder="0" min="0" class="w-24 bg-white border border-amber-300 text-right font-mono font-bold text-sm px-2.5 py-1.5 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            <span class="text-xs font-bold text-amber-800">g</span>
+          </div>
+        </div>
+
+        <!-- 逾時秒數 -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-black text-slate-800 block">逾時歸隊秒數</span>
+            <span class="text-[10px] text-rose-500">每60秒扣10點 (逾10分失格)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <input type="number" id="inputOvertimeSec" oninput="calculateScore()" placeholder="0" min="0" class="w-24 bg-white border border-slate-300 text-right font-mono font-bold text-sm px-2.5 py-1.5 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+            <span class="text-xs font-bold text-slate-500">秒</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 紅牌扣分與禁止項目扣點 -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3">
+        <h3 class="text-xs font-black text-rose-700 flex items-center gap-1">
+          <span>🟥</span> 違規處分與禁止項目扣點 (每項 -100 點)
+        </h3>
+
+        <!-- 紅牌計數器 -->
+        <div class="bg-rose-50 p-3 rounded-xl border border-rose-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-black text-rose-950 block">紅牌處分次數</span>
+            <span class="text-[10px] text-rose-700">每次扣 100 點 (嚴重違規/加水增重)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="adjustRedCards(-1)" class="w-8 h-8 rounded-lg bg-rose-200 text-rose-900 font-black text-base flex items-center justify-center active:scale-90">-</button>
+            <span id="displayRedCardCount" class="font-mono text-base font-black w-6 text-center text-rose-800">0</span>
+            <button onclick="adjustRedCards(1)" class="w-8 h-8 rounded-lg bg-rose-600 text-white font-black text-base flex items-center justify-center active:scale-90">+</button>
+          </div>
+        </div>
+
+        <!-- 禁止項目抽查清單 -->
+        <div class="space-y-1.5 text-xs">
+          <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl cursor-pointer">
+            <input type="checkbox" id="checkBannedLarge" onchange="calculateScore()" class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500">
+            <span class="text-slate-700 font-bold">大型廢棄物 (無法裝入30L袋) (-100點)</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl cursor-pointer">
+            <input type="checkbox" id="checkBannedDanger" onchange="calculateScore()" class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500">
+            <span class="text-slate-700 font-bold">危險物/針筒 (經黃牌制止仍執意撿拾) (-100點)</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl cursor-pointer">
+            <input type="checkbox" id="checkBannedPublic" onchange="calculateScore()" class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500">
+            <span class="text-slate-700 font-bold">非遺棄物品 (公有垃圾桶、私人財物) (-100點)</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-xl cursor-pointer">
+            <input type="checkbox" id="checkBannedNature" onchange="calculateScore()" class="w-4 h-4 rounded text-rose-600 focus:ring-rose-500">
+            <span class="text-slate-700 font-bold">其他排除物 (磚塊、水泥、樹枝、落葉) (-100點)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 協助人員拍照存證系統 (加扣分照片證明) -->
+      <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-800 flex items-center gap-1">
+            <span>📸</span> 隨行協助人員拍照存證 (加扣分證明)
+          </h3>
+          <span id="evidencePhotoCount" class="text-[10px] font-bold text-slate-400">已存證 0 張</span>
+        </div>
+        <p class="text-[11px] text-slate-500">針對重大加分、違規扣分、紅黃牌或爭議廢棄物，隨行協助人員應拍照存證。</p>
+        
+        <div class="flex items-center gap-2">
+          <label class="flex-1 bg-slate-100 hover:bg-slate-200 border border-dashed border-slate-300 rounded-xl py-2 px-3 text-center cursor-pointer active:scale-95 transition">
+            <span class="text-xs font-black text-slate-700 flex items-center justify-center gap-1.5">
+              <span>📷</span> 拍攝/上傳證明相片
+            </span>
+            <input type="file" id="evidenceFileInput" accept="image/*" capture="environment" onchange="handleEvidencePhoto(event)" class="hidden">
+          </label>
+        </div>
+
+        <!-- 縮圖列表 -->
+        <div id="evidenceThumbnails" class="grid grid-cols-4 gap-2 pt-1"></div>
+      </div>
+
+      <!-- 複製成果小卡至剪貼簿 -->
+      <button onclick="copyScoreReport()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-black py-3 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center gap-2 text-sm">
+        <span>📋</span> 複製正式成績小卡 (貼至 LINE)
+      </button>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 視圖 5: 人員組別 & 隊伍速查 (TAB: DIRECTORY) -->
+    <!-- ========================================== -->
+    <section id="viewDirectory" class="space-y-3.5 hidden">
+      
+      <!-- 即時快速搜尋框 (0ms 延遲) -->
+      <div class="relative">
+        <input type="text" id="staffSearchInput" oninput="filterStaffAndTeams()" placeholder="🔍 輸入姓名、隊伍、裁判或職掌 (如: 鈞嵐、水肥、音響)" class="w-full bg-white border border-slate-300 rounded-2xl py-2.5 pl-3.5 pr-9 text-xs font-bold text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <button onclick="clearSearch()" class="absolute right-3 top-2.5 text-slate-400 font-bold text-xs hover:text-slate-600">✕</button>
+      </div>
+
+      <!-- 三大分籤切換：參賽隊伍 (10隊) vs 工作組別 (25人) vs 設備分配 -->
+      <div class="grid grid-cols-3 gap-1 bg-slate-200/80 p-1 rounded-2xl">
+        <button onclick="setDirTab('teams')" id="dirTabTeams" class="py-1.5 text-xs font-black rounded-xl bg-white text-emerald-800 shadow-sm transition">
+          參賽隊伍 (10隊)
+        </button>
+        <button onclick="setDirTab('staff')" id="dirTabStaff" class="py-1.5 text-xs font-bold rounded-xl text-slate-600 transition">
+          工作組別 (25人)
+        </button>
+        <button onclick="setDirTab('equipment')" id="dirTabEquip" class="py-1.5 text-xs font-bold rounded-xl text-slate-600 transition">
+          📦 設備清單
+        </button>
+      </div>
+
+      <!-- 參賽隊伍名冊 (含到場現場隨機抽籤系統) -->
+      <div id="dirTeamsContainer" class="space-y-3">
+        <!-- 現場隨機抽籤控制面板 -->
+        <div class="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white p-3.5 rounded-2xl ios-card shadow space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black flex items-center gap-1.5">
+              <span>🎲</span> 現場抽籤配對系統 (到場抽籤)
+            </span>
+            <span id="drawStatusBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-amber-950">
+              尚未抽籤 (待定)
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-[11px]">
+            <button onclick="randomDrawAllTeams()" class="bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black py-2 rounded-xl active:scale-95 transition flex items-center justify-center gap-1">
+              <span>🎲</span> 一鍵隨機抽籤
+            </button>
+            <button onclick="copyDrawResult()" class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 rounded-xl active:scale-95 transition flex items-center justify-center gap-1 border border-white/20">
+              <span>📋</span> 複製結果至LINE
+            </button>
+            <button onclick="resetDraw()" class="bg-white/10 hover:bg-white/20 text-emerald-200 font-bold py-2 rounded-xl active:scale-95 transition">
+              <span>🔄</span> 重置抽籤
+            </button>
+          </div>
+          <p class="text-[10px] text-emerald-200/90 leading-tight">
+            ★ 支援現場一鍵公平隨機抽籤，亦可在下方各隊卡片手動指定實體籤號。
+          </p>
+        </div>
+
+        <!-- 10 隊卡片動態渲染容器 -->
+        <div id="teamsCardsList" class="space-y-2"></div>
+      </div>
+
+      <!-- 工作組分配清單 -->
+      <div id="dirStaffContainer" class="space-y-3 hidden">
+        <div id="staffCardsList" class="space-y-2"></div>
+      </div>
+
+      <!-- 設備物資分配清單 -->
+      <div id="dirEquipmentContainer" class="space-y-3 hidden">
+        <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2">
+          <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+            <span>📦</span> 大會各組物資設備清點表
+          </h3>
+          <p class="text-[11px] text-slate-500">各組到達現場後請核對分配物品，點收完成可打勾標記。</p>
+        </div>
+        <div id="equipmentCardsList" class="space-y-2"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 底部 iOS 原生風格分頁導航欄 (Tab Bar) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 z-40 py-1.5 px-3">
+    <div class="max-w-md mx-auto grid grid-cols-5 gap-1 text-center">
+      <button onclick="switchTab('overview')" id="tabBtnOverview" class="flex flex-col items-center py-1 text-emerald-700 transition active:scale-95">
+        <span class="text-lg">🎪</span>
+        <span class="text-[10px] font-black mt-0.5">總覽議程</span>
+      </button>
+      <button onclick="switchTab('route')" id="tabBtnRoute" class="flex flex-col items-center py-1 text-slate-400 hover:text-emerald-700 transition active:scale-95">
+        <span class="text-lg">🗺️</span>
+        <span class="text-[10px] font-bold mt-0.5">清掃禁撿</span>
+      </button>
+      <button onclick="switchTab('rules')" id="tabBtnRules" class="flex flex-col items-center py-1 text-slate-400 hover:text-emerald-700 transition active:scale-95">
+        <span class="text-lg">📜</span>
+        <span class="text-[10px] font-bold mt-0.5">裁判手冊</span>
+      </button>
+      <button onclick="switchTab('calc')" id="tabBtnCalc" class="flex flex-col items-center py-1 text-slate-400 hover:text-emerald-700 transition active:scale-95">
+        <span class="text-lg">⚖️</span>
+        <span class="text-[10px] font-bold mt-0.5">智慧計分</span>
+      </button>
+      <button onclick="switchTab('directory')" id="tabBtnDirectory" class="flex flex-col items-center py-1 text-slate-400 hover:text-emerald-700 transition active:scale-95">
+        <span class="text-lg">👥</span>
+        <span class="text-[10px] font-bold mt-0.5">人員隊伍</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    /* -------------------------------------------------------------
+       1. 音效引擎 (Web Audio API 合成，健全相容與靜音保護)
+    ------------------------------------------------------------- */
+    let audioCtx = null;
+    function playBeep(freq = 440, type = 'sine', duration = 0.08) {
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (err) {
+        // 靜音環境或未經手勢啟用時靜默忽略，保證主流程 100% 穩定
+      }
+    }
+
+    /* -------------------------------------------------------------
+       2. 圖資映射設定 (GitHub images/ 目錄下的 8 張 PNG 圖片)
+    ------------------------------------------------------------- */
+    const VENUE_IMAGES = {
+      cishan_satellite: './images/cishan_satellite.png',
+      route_map: './images/route_map.png',
+      corner_1: './images/corner_1.png',
+      corner_2: './images/corner_2.png',
+      corner_3: './images/corner_3.png',
+      forbidden_1: './images/forbidden_1.png',
+      forbidden_2: './images/forbidden_2.png',
+      forbidden_3: './images/forbidden_3.png',
+      classification_poster: './images/classification_poster.png'
+    };
+
+    // 禁撿區域 3 個視角資訊
+    const FORBIDDEN_INFO = [
+      {
+        id: 1,
+        imgKey: 'forbidden_1',
+        title: '視角 ①：建築物前及左側砂袋堆',
+        desc: '建築物鐵捲門前方及左側堆置大量私人沙袋、建材與廢棄物，嚴禁任何隊伍在此撿拾。'
+      },
+      {
+        id: 2,
+        imgKey: 'forbidden_2',
+        title: '視角 ②：建築物前右側黑網雜物',
+        desc: '建築物右側路樹下方以黑色遮光網包裹之盆栽雜物堆，屬於私人產權，嚴禁翻動或撿拾。'
+      },
+      {
+        id: 3,
+        imgKey: 'forbidden_3',
+        title: '視角 ③：售地廣告看板處',
+        desc: '詹雅渟售地廣告大帆布下方及轉角畸零地，堆置之廢棄土石、磚塊與雜物一律不予計分。'
+      }
+    ];
+
+    let currentForbiddenTab = 1;
+
+    // 圖片載入失敗優雅降級
+    function handleImageFallback(imgEl, filename) {
+      if (!imgEl) return;
+      imgEl.onerror = null;
+      imgEl.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340"><rect fill="%23e2e8f0" width="600" height="340"/><text fill="%2364748b" font-family="sans-serif" font-size="20" font-weight="bold" x="50%" y="45%" text-anchor="middle">📷 圖片待載入 (${filename})</text><text fill="%2394a3b8" font-family="sans-serif" font-size="14" x="50%" y="58%" text-anchor="middle">請確認已上傳至 GitHub images/ 目錄</text></svg>`;
+    }
+
+    /* -------------------------------------------------------------
+       3. 核心資料庫 (隊伍名單、人員職掌與設備清單)
+    ------------------------------------------------------------- */
+    const TEAMS_DATA = [
+      { id: 1, name: "水肥大隊", leader: "洪偉哲" },
+      { id: 2, name: "吾必勝", leader: "陳旻萱" },
+      { id: 3, name: "Happy go", leader: "張淑眞" },
+      { id: 4, name: "南投市新興里環保志工隊", leader: "石書諭" },
+      { id: 5, name: "新興知我心", leader: "藍麗卿" },
+      { id: 6, name: "仁和環保志義工隊", leader: "黃國瑞" },
+      { id: 7, name: "愛地球環保志工隊", leader: "李昆茂" },
+      { id: 8, name: "ㄧ級棒環保志工隊", leader: "陳威龍" },
+      { id: 9, name: "有明環保志工隊", leader: "林梳" },
+      { id: 10, name: "虹府環保隊", leader: "陳麗真" }
+    ];
+
+    // 10 組隨行裁判實體籤號 (官方確認版 1~10 籤號配對，抽籤時依隊伍抽中號碼對應)
+    const REFEREE_PAIRS = [
+      { id: 1, referee: "皓偉", assistant: "春蘭" },
+      { id: 2, referee: "嘉豐", assistant: "薇真" },
+      { id: 3, referee: "宛君", assistant: "佩恩" },
+      { id: 4, referee: "德翎", assistant: "貝錡" },
+      { id: 5, referee: "尚軒", assistant: "弘斌" },
+      { id: 6, referee: "以青", assistant: "其貞" },
+      { id: 7, referee: "仁得", assistant: "韻如" },
+      { id: 8, referee: "宜佳", assistant: "馨瑩" },
+      { id: 9, referee: "志偉", assistant: "雯琳" },
+      { id: 10, referee: "軒瑋", assistant: "宜苹" }
+    ];
+
+    // 現場抽籤狀態字典 (teamId -> pairId，未抽為 null)
+    let teamAssignments = {};
+
+    // 工作人員與組別
+    const STAFF_DATA = [
+      {
+        group: "接待組",
+        count: 2,
+        dept: "綜合計畫科 / 大立",
+        members: "科長、鈞嵐、珮珊",
+        duties: [
+          "【09:00-09:30】協助接待到場長官及貴賓。",
+          "【09:30-09:50】主持活動及撿垃圾規則說明 (鈞嵐)。",
+          "【10:50-11:10】協助統計區電腦作業 (鈞嵐)。",
+          "【11:10-11:30】頒獎活動主持 (鈞嵐)。"
+        ]
+      },
+      {
+        group: "報到組",
+        count: 5,
+        dept: "綜合計畫科 / 大立",
+        members: "春蘭、珮珊、珮騏、怡昀、薇真",
+        duties: [
+          "【08:30-09:00】報到處設置完成就位。",
+          "【09:00-09:30 報到】貴賓、參賽者、工作人員、媒體簽到作業；發放媒體禮。",
+          "【09:50-10:30 餐盒&支援】餐盒接洽與分配 (預計10點送達)；拍攝隊伍與交通安全 (春蘭、薇真)。",
+          "【10:50-11:10 統計作業】分類檢查 (珮珊)；確認磅秤重量填寫小卡並請隊伍簽名 (珮騏、怡昀)。",
+          "【11:30 發放餐盒】頒獎結束協助發放餐盒 (媒體已有媒體禮不發)。"
+        ]
+      },
+      {
+        group: "裁判組",
+        count: 10,
+        dept: "綜合計畫科 / 大立",
+        members: "德翎、仁得、軒瑋、嘉豐、其貞、志偉、皓偉、宛君、尚軒、以青、宜佳、貝錡",
+        duties: [
+          "【08:30-09:00 道具定位】由志偉、皓偉發放每隊物品 (鐵夾3、手套3、黃背心3、1斤袋1、30斤袋4)；裁判著紅背心攜帶哨子與黃紅牌。",
+          "【09:50-10:30 隨行執法】貼身跟隨隊伍注意安全，協助人員拍照存證；全程嚴禁給予指導建議。",
+          "【10:30-10:50 垃圾分類初判】監督選手20分鐘自主分類，隨行裁判先行檢查，分類錯誤直接取出不算分，存疑物品送秤重區裁決。",
+          "【10:50-11:10 成果統計】引導隊伍至秤重區依序秤重並協助作業。"
+        ]
+      },
+      {
+        group: "舞台組",
+        count: 5,
+        dept: "綜合計畫科 / 大立",
+        members: "佩恩、其貞、宜佳、韻如、宜苹",
+        duties: [
+          "【08:30-09:00 舞台定位】手提音響測試確認；確認得獎手舉牌與全聯禮券順序。",
+          "【09:50-10:30 協助裁判】拍攝隊伍競賽情形及協助交通安全。",
+          "【10:50-11:10 協助統計】將結果貼於統計海報，完成後移至舞台 (宜佳、韻如)。",
+          "【11:10-11:30 頒獎引導】遞禮券(韻如)、遞得獎牌(宜佳)；引導站位與合照(鈞嵐、佩恩)；協助得獎隊伍簽收領據(宜苹、其貞)。"
+        ]
+      },
+      {
+        group: "攝影組",
+        count: 2,
+        dept: "大立",
+        members: "馨瑩、雯琳",
+        duties: [
+          "【08:30-09:00】舞台前攝影機架設定位。",
+          "【09:00-09:50】簽到處、長官致詞與規則說明全程攝影。",
+          "【09:50-10:30】跟拍各隊伍競賽情形及協助交通安全。",
+          "【10:30-11:30】垃圾分類、統計區秤重及頒獎全程攝影紀錄。"
+        ]
+      },
+      {
+        group: "交通機動組",
+        count: 2,
+        dept: "綜合計畫科 / 大立",
+        members: "弘斌、以青",
+        duties: [
+          "【08:30-09:00】預留長官、貴賓停車位。",
+          "【09:00-09:30】指揮交通，引導貴賓/長官/參賽隊伍/清潔隊停車 (清潔隊10點抵達)，通報長官到場。",
+          "【09:50-10:30】沿線協助裁判組與交通安全巡邏。",
+          "【11:30】協助各參賽人員安全賦歸。"
+        ]
+      },
+      {
+        group: "秤重統計區",
+        count: 6,
+        dept: "大立",
+        members: "鈞嵐、珮珊、怡昀、珮騏、薇真、宜佳、韻如",
+        duties: [
+          "【10:30-11:10 秤重統計作業】",
+          "1. 垃圾分類檢查 (珮珊、薇真)。",
+          "2. 確認磅秤重量並填寫紀錄小卡，隊長確認無誤後簽名 (珮騏、怡昀)。",
+          "3. 電腦數據即時登錄與名次計算 (鈞嵐)。",
+          "4. 結果張貼於統計海報並移交舞台組 (宜佳、韻如)。"
+        ]
+      }
+    ];
+
+    // 設備物資分配表
+    const EQUIPMENT_DATA = [
+      {
+        group: "招待組",
+        items: [
+          "長官、貴賓名單、參加隊伍名單",
+          "長官致詞稿、主持人稿"
+        ]
+      },
+      {
+        group: "報到組",
+        items: [
+          "海報架 * 1 (議程圖 60*90 cm)",
+          "媒體禮 * 10 份",
+          "簽到表 (貴賓、長官、工作人員、參賽隊伍、媒體)",
+          "各式文具 (筆、麥克筆、膠帶、長尾夾、繩子)",
+          "工作手冊",
+          "活動規則說明",
+          "餐盒 (預計 10:00 送達)"
+        ]
+      },
+      {
+        group: "舞台組",
+        items: [
+          "全聯禮券 (6,000元*1、4,500元*1、3,000元*1、1,500元*7，均為500元禮券)",
+          "得獎手舉牌 * 3",
+          "拍照用手舉牌",
+          "得獎隊伍領據 (含書寫墊板)",
+          "定位貼",
+          "海報架 * 1 (比賽規則 A3)",
+          "手提音響"
+        ]
+      },
+      {
+        group: "裁判組",
+        items: [
+          "黃、紅牌 * 10 套",
+          "鐵夾子 * 30 支 (每隊配給3支)",
+          "垃圾袋 (1斤*30個、5斤*60個、30斤*20個)",
+          "棉質手套 * 30 雙 (每隊配給3雙)",
+          "黃色隊伍背心 * 30 件 (每隊配給3件)",
+          "紅色裁判背心 * 10 件",
+          "隊伍手舉牌",
+          "裁判口哨 * 10 個"
+        ]
+      },
+      {
+        group: "交通機動組",
+        items: [
+          "指揮棒",
+          "交通錐",
+          "哨子 * 3"
+        ]
+      },
+      {
+        group: "秤重統計區",
+        items: [
+          "磅秤 (電子磅秤 2 台、精準小秤 1 台)",
+          "海報架 * 2 (排名統計 60*90、分類說明 A3)",
+          "統計小卡",
+          "隊伍貼 (排名統計海報用)",
+          "計算用紙、筆"
+        ]
+      }
+    ];
+
+    /* -------------------------------------------------------------
+       4. 燈箱、提示通知與分頁切換
+    ------------------------------------------------------------- */
+    function showToast(msg, icon = "ℹ️") {
+      const toast = document.getElementById('toastNotification');
+      const textEl = document.getElementById('toastMessage');
+      const iconEl = document.getElementById('toastIcon');
+      if (!toast || !textEl) return;
+      textEl.innerText = msg;
+      if (iconEl) iconEl.innerText = icon;
+      toast.classList.remove('opacity-0', '-translate-y-4', 'scale-95');
+      toast.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+        toast.classList.add('opacity-0', '-translate-y-4', 'scale-95');
+      }, 2500);
+    }
+
+    function openLightbox(imgKey, title, desc) {
+      const modal = document.getElementById('imageLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      const titleEl = document.getElementById('lightboxTitle');
+      const descEl = document.getElementById('lightboxDescription');
+      if (!modal || !img) return;
+
+      const src = VENUE_IMAGES[imgKey] || './images/' + imgKey + '.png';
+      img.onerror = () => handleImageFallback(img, imgKey + '.png');
+      img.src = src;
+
+      if (titleEl) titleEl.innerText = title;
+      if (descEl) descEl.innerText = desc || '';
+
+      modal.classList.remove('hidden');
+      playBeep(660, 'triangle', 0.05);
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('imageLightboxModal');
+      if (modal) modal.classList.add('hidden');
+      playBeep(440, 'sine', 0.04);
+    }
+
+    function openCurrentForbiddenLightbox() {
+      const info = FORBIDDEN_INFO.find(item => item.id === currentForbiddenTab) || FORBIDDEN_INFO[0];
+      openLightbox(info.imgKey, info.title, info.desc);
+    }
+
+    function setForbiddenTab(tabIndex) {
+      currentForbiddenTab = tabIndex;
+      const info = FORBIDDEN_INFO.find(item => item.id === tabIndex) || FORBIDDEN_INFO[0];
+      
+      const imgEl = document.getElementById('forbiddenImage');
+      const badgeEl = document.getElementById('forbiddenBadgeText');
+      const descEl = document.getElementById('forbiddenDescText');
+
+      if (imgEl) {
+        imgEl.onerror = () => handleImageFallback(imgEl, info.imgKey + '.png');
+        imgEl.src = VENUE_IMAGES[info.imgKey];
+      }
+      if (badgeEl) badgeEl.innerText = info.title;
+      if (descEl) descEl.innerText = info.desc;
+
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`btnForbid${i}`);
+        if (!btn) continue;
+        if (i === tabIndex) {
+          btn.className = "py-1 text-[11px] font-extrabold rounded-lg bg-rose-600 text-white transition shadow-sm";
+        } else {
+          btn.className = "py-1 text-[11px] font-bold rounded-lg text-slate-600 transition";
+        }
+      }
+      playBeep(520, 'sine', 0.05);
+    }
+
+    function switchTab(tabId) {
+      const views = ['overview', 'route', 'rules', 'calc', 'directory'];
+      views.forEach(v => {
+        const viewEl = document.getElementById(`view${v.charAt(0).toUpperCase() + v.slice(1)}`);
+        const btnEl = document.getElementById(`tabBtn${v.charAt(0).toUpperCase() + v.slice(1)}`);
+        if (viewEl) {
+          viewEl.classList.toggle('hidden', v !== tabId);
+        }
+        if (btnEl) {
+          if (v === tabId) {
+            btnEl.className = "flex flex-col items-center py-1 text-emerald-700 transition active:scale-95";
+            const textSpan = btnEl.querySelector('span:last-child');
+            if (textSpan) textSpan.className = "text-[10px] font-black mt-0.5";
+          } else {
+            btnEl.className = "flex flex-col items-center py-1 text-slate-400 hover:text-emerald-700 transition active:scale-95";
+            const textSpan = btnEl.querySelector('span:last-child');
+            if (textSpan) textSpan.className = "text-[10px] font-bold mt-0.5";
+          }
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      playBeep(440, 'sine', 0.04);
+    }
+
+    /* -------------------------------------------------------------
+       5. 雙階段競賽計時器 (40分鐘撿拾 + 20分鐘分類)
+    ------------------------------------------------------------- */
+    let currentStage = 1; // 1: 撿垃圾 (40m), 2: 分類 (20m)
+    let remainingSeconds = 40 * 60;
+    let isTimerRunning = false;
+    let timerInterval = null;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateTimerUI() {
+      const display = document.getElementById('timerDisplay');
+      const label = document.getElementById('timerStageLabel');
+      const toggleBtn = document.getElementById('btnTimerToggle');
+      if (display) display.innerText = formatTime(remainingSeconds);
+      if (label) {
+        label.innerText = currentStage === 1 ? "40分鐘 撿垃圾階段" : "20分鐘 垃圾分類階段";
+      }
+      if (toggleBtn) {
+        toggleBtn.innerText = isTimerRunning ? "暫停" : "開始";
+        toggleBtn.className = isTimerRunning 
+          ? "bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow-sm active:scale-95 transition"
+          : "bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-sm active:scale-95 transition";
+      }
+    }
+
+    function toggleTimer() {
+      isTimerRunning = !isTimerRunning;
+      if (isTimerRunning) {
+        playBeep(700, 'square', 0.1);
+        showToast(currentStage === 1 ? "競賽計時開始 (40分鐘)" : "分類計時開始 (20分鐘)", "⏱️");
+        timerInterval = setInterval(() => {
+          if (remainingSeconds > 0) {
+            remainingSeconds--;
+            updateTimerUI();
+            if (remainingSeconds === 300) {
+              playBeep(880, 'sine', 0.2);
+              showToast("⚠️ 最後 5 分鐘提醒！", "⏳");
+            } else if (remainingSeconds === 60) {
+              playBeep(1000, 'sine', 0.3);
+              showToast("🚨 最後 1 分鐘，請加速歸隊！", "🚨");
+            }
+          } else {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            updateTimerUI();
+            playBeep(587, 'square', 0.4);
+            showToast(currentStage === 1 ? "40分鐘撿拾時間到！請立即返回歸隊。" : "20分鐘分類時間到！請依序進行秤重。", "🔔");
+          }
+        }, 1000);
+      } else {
+        clearInterval(timerInterval);
+        playBeep(440, 'sine', 0.08);
+      }
+      updateTimerUI();
+    }
+
+    function switchTimerStage() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      currentStage = currentStage === 1 ? 2 : 1;
+      remainingSeconds = currentStage === 1 ? 40 * 60 : 20 * 60;
+      updateTimerUI();
+      playBeep(520, 'triangle', 0.1);
+      showToast(`已切換至：${currentStage === 1 ? '40分鐘 撿拾階段' : '20分鐘 分類階段'}`);
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      remainingSeconds = currentStage === 1 ? 40 * 60 : 20 * 60;
+      updateTimerUI();
+      playBeep(330, 'sine', 0.08);
+      showToast("計時器已重置");
+    }
+
+    /* -------------------------------------------------------------
+       6. 智慧計分與扣點引擎 (0ms 極速試算)
+    ------------------------------------------------------------- */
+    let redCardCount = 0;
+    let evidencePhotos = [];
+
+    function adjustRedCards(delta) {
+      redCardCount = Math.max(0, redCardCount + delta);
+      const countEl = document.getElementById('displayRedCardCount');
+      if (countEl) countEl.innerText = redCardCount;
+      calculateScore();
+      playBeep(delta > 0 ? 300 : 500, 'sawtooth', 0.08);
+    }
+
+    function updateCalcTeamDropdown() {
+      const select = document.getElementById('calcTeamSelect');
+      if (!select) return;
+      const currentVal = select.value;
+      let html = '<option value="">-- 請選擇隊伍 (或不指定) --</option>';
+      TEAMS_DATA.forEach(t => {
+        const pair = REFEREE_PAIRS.find(p => p.id === teamAssignments[t.id]);
+        const refText = pair ? ` (【籤號${pair.id}】裁判: ${pair.referee} / 協助: ${pair.assistant})` : ' (未抽裁判)';
+        html += `<option value="${t.id}" ${t.id == currentVal ? 'selected' : ''}>第 ${t.id} 隊：${t.name} (隊長:${t.leader})${refText}</option>`;
+      });
+      select.innerHTML = html;
+      onCalcTeamChange();
+    }
+
+    function onCalcTeamChange() {
+      const select = document.getElementById('calcTeamSelect');
+      const badge = document.getElementById('calcAssignedRefereeText');
+      if (!select || !badge) return;
+      const tId = parseInt(select.value, 10);
+      if (!tId) {
+        badge.innerText = "尚未選擇隊伍";
+        badge.className = "text-[11px] font-bold text-slate-400";
+        return;
+      }
+      const pair = REFEREE_PAIRS.find(p => p.id === teamAssignments[tId]);
+      if (pair) {
+        badge.innerText = `【籤號 ${pair.id}】裁判: ${pair.referee} ｜ 協助: ${pair.assistant}`;
+        badge.className = "text-[11px] font-black text-emerald-700";
+      } else {
+        badge.innerText = "⚠️ 尚未現場抽籤配對";
+        badge.className = "text-[11px] font-bold text-amber-600";
+      }
+    }
+
+    function calculateScore() {
+      // 讀取輸入值
+      const gGen = parseFloat(document.getElementById('inputGeneral')?.value) || 0;
+      const gRec = parseFloat(document.getElementById('inputRecycle')?.value) || 0;
+      const gCig = parseFloat(document.getElementById('inputCigarette')?.value) || 0;
+      const otSec = parseInt(document.getElementById('inputOvertimeSec')?.value, 10) || 0;
+
+      // 計算得點：一般 100g=10 (0.1/g)，回收 100g=20 (0.2/g)，菸蒂 50g=200 (4/g)
+      const pGen = Math.round(gGen * 0.1 * 10) / 10;
+      const pRec = Math.round(gRec * 0.2 * 10) / 10;
+      const pCig = Math.round(gCig * 4.0 * 10) / 10;
+
+      // 違規扣分：逾時扣分 (每60秒扣10點)
+      let otDeduct = 0;
+      let isDisqualified = false;
+      if (otSec > 600) {
+        isDisqualified = true;
+      } else if (otSec > 0) {
+        otDeduct = Math.ceil(otSec / 60) * 10;
+      }
+
+      // 禁止項目勾選 (每項扣 100 點)
+      let bannedDeduct = 0;
+      if (document.getElementById('checkBannedLarge')?.checked) bannedDeduct += 100;
+      if (document.getElementById('checkBannedDanger')?.checked) bannedDeduct += 100;
+      if (document.getElementById('checkBannedPublic')?.checked) bannedDeduct += 100;
+      if (document.getElementById('checkBannedNature')?.checked) bannedDeduct += 100;
+
+      // 紅牌處分 (每次扣 100 點)
+      const redCardDeduct = redCardCount * 100;
+      const totalDeductions = otDeduct + bannedDeduct + redCardDeduct;
+
+      // 結算總分 (不低於 0 分)
+      const rawScore = (pGen + pRec + pCig) - totalDeductions;
+      const finalScore = Math.max(0, Math.round(rawScore * 10) / 10);
+
+      // 更新看板
+      const totalEl = document.getElementById('displayTotalPoints');
+      const dedEl = document.getElementById('displayDeductions');
+      const otTextEl = document.getElementById('displayOvertimeText');
+      const statusText = document.getElementById('calcStatusText');
+
+      if (totalEl) {
+        if (isDisqualified) {
+          totalEl.innerText = "失格";
+          totalEl.className = "text-3xl font-mono font-black tracking-tight text-rose-300";
+        } else {
+          totalEl.innerText = finalScore.toString();
+          totalEl.className = "text-4xl font-mono font-black tracking-tight text-white";
+        }
+      }
+
+      if (dedEl) dedEl.innerText = totalDeductions.toString();
+      if (otTextEl) {
+        otTextEl.innerText = isDisqualified 
+          ? "逾時超過10分鐘 (取消資格)"
+          : `逾時: ${otSec}秒 (扣${otDeduct}點)`;
+      }
+      if (statusText) {
+        statusText.innerText = isDisqualified ? "取消資格" : "即時換算完成";
+      }
+
+      // 微型看板
+      const subGen = document.getElementById('subGeneral');
+      const subRec = document.getElementById('subRecycle');
+      const subCig = document.getElementById('subCigarette');
+      const subRed = document.getElementById('subRedCard');
+      if (subGen) subGen.innerText = `+${pGen}`;
+      if (subRec) subRec.innerText = `+${pRec}`;
+      if (subCig) subCig.innerText = `+${pCig}`;
+      if (subRed) subRed.innerText = `-${totalDeductions}`;
+    }
+
+    function resetCalculator() {
+      const inputs = ['inputGeneral', 'inputRecycle', 'inputCigarette', 'inputOvertimeSec'];
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const checks = ['checkBannedLarge', 'checkBannedDanger', 'checkBannedPublic', 'checkBannedNature'];
+      checks.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
+      redCardCount = 0;
+      const countEl = document.getElementById('displayRedCardCount');
+      if (countEl) countEl.innerText = '0';
+      calculateScore();
+      playBeep(330, 'sine', 0.08);
+      showToast("已清空計分表單");
+    }
+
+    function handleEvidencePhoto(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        evidencePhotos.push(e.target.result);
+        renderEvidenceThumbnails();
+        showToast("已新增拍照存證記錄", "📸");
+        playBeep(700, 'triangle', 0.1);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderEvidenceThumbnails() {
+      const container = document.getElementById('evidenceThumbnails');
+      const countLabel = document.getElementById('evidencePhotoCount');
+      if (countLabel) countLabel.innerText = `已存證 ${evidencePhotos.length} 張`;
+      if (!container) return;
+      container.innerHTML = evidencePhotos.map((dataUrl, idx) => `
+        <div class="relative group rounded-xl overflow-hidden border border-slate-200 h-16 bg-slate-100">
+          <img src="${dataUrl}" class="w-full h-full object-cover">
+          <button onclick="deleteEvidencePhoto(${idx})" class="absolute top-0.5 right-0.5 bg-black/70 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function deleteEvidencePhoto(index) {
+      evidencePhotos.splice(index, 1);
+      renderEvidenceThumbnails();
+      playBeep(440, 'sine', 0.05);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {}
+      document.body.removeChild(textArea);
+    }
+
+    function copyScoreReport() {
+      const gGen = document.getElementById('inputGeneral')?.value || '0';
+      const gRec = document.getElementById('inputRecycle')?.value || '0';
+      const gCig = document.getElementById('inputCigarette')?.value || '0';
+      const otSec = document.getElementById('inputOvertimeSec')?.value || '0';
+      const total = document.getElementById('displayTotalPoints')?.innerText || '0';
+
+      const select = document.getElementById('calcTeamSelect');
+      const tId = select ? parseInt(select.value, 10) : 0;
+      let teamInfo = "";
+      if (tId) {
+        const team = TEAMS_DATA.find(t => t.id === tId);
+        const pair = REFEREE_PAIRS.find(p => p.id === teamAssignments[tId]);
+        teamInfo = `• 參賽隊伍：第 ${tId} 隊【${team?.name}】(隊長: ${team?.leader})\n• 隨行裁判：${pair ? `【籤號 ${pair.id}】${pair.referee} ｜ 協助: ${pair.assistant}` : '尚未抽籤配對'}\n`;
+      }
+
+      const report = `【南投 SPOGOMI 現場成果計分小卡】\n${teamInfo}• 一般垃圾：${gGen} g\n• 資源回收：${gRec} g\n• 菸蒂重量：${gCig} g\n• 逾時歸隊：${otSec} 秒\n• 紅牌處分：${redCardCount} 次 (扣 ${redCardCount * 100} 點)\n• 拍照存證：已建檔 ${evidencePhotos.length} 張相片證明\n--------------------\n🏆 總結算積分：${total} 點\n記錄時間：${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+      
+      copyToClipboard(report);
+      showToast("已複製成績紀錄卡 (可直接貼至 LINE)！", "📋");
+      playBeep(880, 'sine', 0.1);
+    }
+
+    /* -------------------------------------------------------------
+       7. 人員組別、隊伍抽籤與設備清單渲染
+    ------------------------------------------------------------- */
+    function setDirTab(tabName) {
+      const tabs = ['teams', 'staff', 'equipment'];
+      tabs.forEach(t => {
+        const container = document.getElementById(`dir${t.charAt(0).toUpperCase() + t.slice(1)}Container`);
+        const btn = document.getElementById(`dirTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (container) container.classList.toggle('hidden', t !== tabName);
+        if (btn) {
+          if (t === tabName) {
+            btn.className = "py-1.5 text-xs font-black rounded-xl bg-white text-emerald-800 shadow-sm transition";
+          } else {
+            btn.className = "py-1.5 text-xs font-bold rounded-xl text-slate-600 transition";
+          }
+        }
+      });
+      playBeep(440, 'sine', 0.04);
+    }
+
+    // 隨機抽籤 (Fisher-Yates)
+    function randomDrawAllTeams() {
+      const pairIds = REFEREE_PAIRS.map(p => p.id);
+      for (let i = pairIds.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pairIds[i], pairIds[j]] = [pairIds[j], pairIds[i]];
+      }
+      TEAMS_DATA.forEach((team, index) => {
+        teamAssignments[team.id] = pairIds[index];
+      });
+      renderTeams(TEAMS_DATA);
+      updateCalcTeamDropdown();
+      playBeep(880, 'triangle', 0.2);
+      showToast("🎲 10 隊現場隨機抽籤配對完成！", "🎲");
+    }
+
+    function assignTeamReferee(teamId, pairIdVal) {
+      const pairId = pairIdVal ? parseInt(pairIdVal, 10) : null;
+      if (pairId) {
+        for (const [tId, pId] of Object.entries(teamAssignments)) {
+          if (parseInt(tId, 10) !== teamId && pId === pairId) {
+            teamAssignments[parseInt(tId, 10)] = null;
+          }
+        }
+      }
+      teamAssignments[teamId] = pairId;
+      renderTeams(TEAMS_DATA);
+      updateCalcTeamDropdown();
+      playBeep(520, 'sine', 0.08);
+      showToast("已更新該隊隨行裁判配對");
+    }
+
+    function resetDraw() {
+      TEAMS_DATA.forEach(t => teamAssignments[t.id] = null);
+      renderTeams(TEAMS_DATA);
+      updateCalcTeamDropdown();
+      playBeep(330, 'sine', 0.08);
+      showToast("已重置所有抽籤配對");
+    }
+
+    function copyDrawResult() {
+      const assignedCount = Object.values(teamAssignments).filter(Boolean).length;
+      if (assignedCount === 0) {
+        showToast("⚠️ 尚未進行抽籤，請先抽籤後再複製", "⚠️");
+        return;
+      }
+      let report = `【南投 SPOGOMI 現場抽籤配對名冊 (115/10/19)】\n`;
+      report += `抽籤進度：已完成 ${assignedCount}/10 隊\n--------------------\n`;
+      TEAMS_DATA.forEach(team => {
+        const pairId = teamAssignments[team.id];
+        const pair = REFEREE_PAIRS.find(p => p.id === pairId);
+        if (pair) {
+          report += `• 第 ${team.id} 隊【${team.name}】(隊長:${team.leader})\n  ➔ 抽中【籤號 ${pair.id}】：裁判 ${pair.referee} ｜ 協助: ${pair.assistant}\n`;
+        } else {
+          report += `• 第 ${team.id} 隊【${team.name}】(隊長:${team.leader})\n  ➔ 尚未抽籤 (待定)\n`;
+        }
+      });
+      report += `--------------------\n記錄時間：${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+      copyToClipboard(report);
+      showToast("已複製抽籤配對名冊至剪貼簿！", "📋");
+      playBeep(880, 'sine', 0.1);
+    }
+
+    function renderTeams(list) {
+      const container = document.getElementById('teamsCardsList');
+      if (!container) return;
+
+      const assignedCount = Object.values(teamAssignments).filter(Boolean).length;
+      const statusBadge = document.getElementById('drawStatusBadge');
+      if (statusBadge) {
+        if (assignedCount === 10) {
+          statusBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-950";
+          statusBadge.innerText = "全數抽籤完成 (10/10)";
+        } else if (assignedCount > 0) {
+          statusBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-200 text-sky-950";
+          statusBadge.innerText = `抽籤中 (${assignedCount}/10)`;
+        } else {
+          statusBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-amber-950";
+          statusBadge.innerText = "尚未抽籤 (待定)";
+        }
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 text-xs text-slate-400 font-bold bg-white rounded-2xl">查無相符隊伍</div>';
+        return;
+      }
+
+      container.innerHTML = list.map(t => {
+        const assignedPairId = teamAssignments[t.id];
+        const assignedPair = REFEREE_PAIRS.find(p => p.id === assignedPairId);
+
+        const optionsHtml = REFEREE_PAIRS.map(p => {
+          const isSelected = p.id === assignedPairId ? 'selected' : '';
+          const takenBy = Object.entries(teamAssignments).find(([tId, pId]) => pId === p.id && parseInt(tId, 10) !== t.id);
+          const takenText = takenBy ? ` (已配給第${takenBy[0]}隊)` : '';
+          return `<option value="${p.id}" ${isSelected}>【籤號 ${p.id}】裁判:${p.referee} 協助:${p.assistant}${takenText}</option>`;
+        }).join('');
+
+        return `
+          <div class="bg-white rounded-2xl p-3.5 ios-card border ${assignedPair ? 'border-emerald-300' : 'border-slate-200'} space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full ${assignedPair ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'} text-xs font-black flex items-center justify-center">
+                  ${t.id}
+                </span>
+                <h4 class="font-black text-slate-800 text-xs">${t.name}</h4>
+              </div>
+              <span class="text-xs text-slate-500 font-bold">隊長：<b class="text-slate-800">${t.leader}</b></span>
+            </div>
+
+            <!-- 下拉抽籤指派區 -->
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
+              <span class="text-[11px] font-black text-slate-700 shrink-0">🎲 抽中籤號:</span>
+              <div class="flex-1 max-w-[210px]">
+                <select onchange="assignTeamReferee(${t.id}, this.value)" class="w-full bg-white border ${assignedPair ? 'border-emerald-400 text-emerald-950 font-black' : 'border-slate-300 text-slate-500 font-bold'} text-[11px] rounded-lg py-1 px-2 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                  <option value="">-- 請選擇抽中籤號 (1~10) --</option>
+                  ${optionsHtml}
+                </select>
+              </div>
+            </div>
+
+            ${assignedPair ? `
+              <div class="flex items-center justify-end gap-1.5 text-xs pt-0.5">
+                <span class="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded">籤號 ${assignedPair.id}</span>
+                <span class="text-[10px] text-slate-400 font-bold">隨行裁判:</span>
+                <span class="font-black text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">${assignedPair.referee}</span>
+                <span class="text-[10px] text-slate-400 font-bold">協助人員:</span>
+                <span class="font-black text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-md">${assignedPair.assistant}</span>
+              </div>
+            ` : `
+              <div class="text-right text-[10px] text-amber-600 font-bold">⚠️ 尚未指派隨行裁判，請點選上方隨機抽籤或手動指定</div>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStaff(list) {
+      const container = document.getElementById('staffCardsList');
+      if (!container) return;
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 text-xs text-slate-400 font-bold bg-white rounded-2xl">查無相符工作人員或職掌</div>';
+        return;
+      }
+      container.innerHTML = list.map(g => `
+        <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-black text-emerald-800">${g.group}</span>
+              <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full">${g.count}人 (${g.dept})</span>
+            </div>
+          </div>
+          <div class="text-xs text-slate-700 font-medium">
+            <span class="text-[11px] font-bold text-slate-400 block mb-0.5">組員名單：</span>
+            <p class="font-bold text-slate-800">${g.members}</p>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1">
+            <span class="text-[10px] font-black text-slate-500 block">各時段主要任務：</span>
+            ${g.duties.map(d => `<p class="text-[11px] text-slate-600 leading-snug">• ${d}</p>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderEquipment(list) {
+      const container = document.getElementById('equipmentCardsList');
+      if (!container) return;
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 text-xs text-slate-400 font-bold bg-white rounded-2xl">查無相符設備</div>';
+        return;
+      }
+      container.innerHTML = list.map((g, gIdx) => `
+        <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <h4 class="text-xs font-black text-emerald-800">📦 ${g.group}</h4>
+            <span class="text-[10px] font-bold text-slate-400">${g.items.length} 項物資</span>
+          </div>
+          <div class="space-y-1.5">
+            ${g.items.map((item, iIdx) => `
+              <label class="flex items-start gap-2 text-xs p-1.5 hover:bg-slate-50 rounded-lg cursor-pointer transition">
+                <input type="checkbox" id="equip_${gIdx}_${iIdx}" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                <span class="text-slate-700 leading-tight">${item}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterStaffAndTeams() {
+      const query = (document.getElementById('staffSearchInput')?.value || '').trim().toLowerCase();
+      
+      const filteredTeams = TEAMS_DATA.filter(t => {
+        const pair = REFEREE_PAIRS.find(p => p.id === teamAssignments[t.id]);
+        const refName = pair ? pair.referee.toLowerCase() : '';
+        const astName = pair ? pair.assistant.toLowerCase() : '';
+        return t.name.toLowerCase().includes(query) ||
+               t.leader.toLowerCase().includes(query) ||
+               refName.includes(query) ||
+               astName.includes(query);
+      });
+
+      const filteredStaff = STAFF_DATA.filter(g => 
+        g.group.toLowerCase().includes(query) ||
+        g.members.toLowerCase().includes(query) ||
+        g.duties.some(d => d.toLowerCase().includes(query))
+      );
+
+      const filteredEquip = EQUIPMENT_DATA.filter(e => 
+        e.group.toLowerCase().includes(query) ||
+        e.items.some(it => it.toLowerCase().includes(query))
+      );
+
+      renderTeams(filteredTeams);
+      renderStaff(filteredStaff);
+      renderEquipment(filteredEquip);
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('staffSearchInput');
+      if (input) {
+        input.value = '';
+        filterStaffAndTeams();
+        playBeep(440, 'sine', 0.05);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       8. 應用程式全域初始化 (DOMContentLoaded 雙重防禦檢查)
+    ------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. 初始化隊伍抽籤狀態
+      TEAMS_DATA.forEach(t => {
+        if (teamAssignments[t.id] === undefined) {
+          teamAssignments[t.id] = null;
+        }
+      });
+
+      // 2. 初始渲染視圖
+      renderTeams(TEAMS_DATA);
+      renderStaff(STAFF_DATA);
+      renderEquipment(EQUIPMENT_DATA);
+      updateCalcTeamDropdown();
+      updateTimerUI();
+      calculateScore();
+
+      // 3. 預設顯示總覽視圖
+      switchTab('overview');
+    });
+  </script>
+</body>
+</html>
