@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>南投 SPOGOMI 環境運動挑戰賽 - 現場工作手冊</title>
   
-  <!-- iOS PWA 原生應用支援與狀態列設定 -->
+  <!-- iOS PWA 原生應用支援與清晰狀態列設定 (消除霧膜關鍵) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="南投SPOGOMI">
   <meta name="theme-color" content="#047857">
   
@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" id="faviconLink" sizes="32x32" href="./images/apple-touch-icon.png">
   
   <!-- Web App Manifest (PWA 輕量配置) -->
-  <link rel="manifest" href='data:application/manifest+json,{"name":"南投 SPOGOMI 現場工作手冊","short_name":"南投SPOGOMI","start_url":"./","display":"standalone","background_color":"#064e3b","theme_color":"#047857"}'>
+  <link rel="manifest" href='data:application/manifest+json,{"name":"南投 SPOGOMI 現場工作手冊","short_name":"南投SPOGOMI","start_url":"./","display":"standalone","background_color":"#047857","theme_color":"#047857"}'>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -97,8 +97,8 @@
     </div>
   </div>
 
-  <!-- 頂部主標題與賽事狀態看板 -->
-  <header class="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white sticky top-0 z-30 shadow-md">
+  <!-- 頂部主標題與賽事狀態看板 (整合 Safe-Area 避免與動態島/瀏海重疊) -->
+  <header class="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white sticky top-0 z-30 shadow-md" style="padding-top: env(safe-area-inset-top, 0px);">
     <div class="max-w-md mx-auto px-4 pt-3 pb-2.5 flex items-center justify-between">
       <div>
         <div class="flex items-center gap-1.5">
@@ -362,7 +362,7 @@
         </div>
       </div>
 
-      <!-- 官方垃圾分類 A3 海報速查卡 (點擊看大圖 + 常見實物圖例速查) -->
+      <!-- 官方垃圾分類 A3 海報速查卡 -->
       <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl p-3.5 border-2 border-emerald-300 ios-card space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
@@ -611,7 +611,7 @@
         </div>
       </div>
 
-      <!-- 協助人員拍照存證系統 (加扣分照片證明) -->
+      <!-- 協助人員拍照存證系統 -->
       <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-black text-slate-800 flex items-center gap-1">
@@ -651,7 +651,7 @@
         <button onclick="clearSearch()" class="absolute right-3 top-2.5 text-slate-400 font-bold text-xs hover:text-slate-600">✕</button>
       </div>
 
-      <!-- 三大分籤切換：參賽隊伍 (10隊) vs 工作組別 (25人) vs 設備分配 -->
+      <!-- 三大分籤切換 -->
       <div class="grid grid-cols-3 gap-1 bg-slate-200/80 p-1 rounded-2xl">
         <button onclick="setDirTab('teams')" id="dirTabTeams" class="py-1.5 text-xs font-black rounded-xl bg-white text-emerald-800 shadow-sm transition">
           參賽隊伍 (10隊)
@@ -812,12 +812,12 @@
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
       } catch (err) {
-        // 靜音環境或未經手勢啟用時靜默忽略，保證主流程 100% 穩定
+        // 靜音環境或未經手勢啟用時靜默忽略
       }
     }
 
     /* -------------------------------------------------------------
-       2. 圖資映射設定 (GitHub images/ 目錄下的 8 張 PNG 圖片)
+       2. 圖資映射設定
     ------------------------------------------------------------- */
     const VENUE_IMAGES = {
       cishan_satellite: './images/cishan_satellite.png',
@@ -878,7 +878,7 @@
       { id: 10, name: "虹府環保隊", leader: "陳麗真" }
     ];
 
-    // 10 組隨行裁判實體籤號 (官方確認版 1~10 籤號配對，抽籤時依隊伍抽中號碼對應)
+    // 10 組隨行裁判實體籤號
     const REFEREE_PAIRS = [
       { id: 1, referee: "皓偉", assistant: "春蘭" },
       { id: 2, referee: "嘉豐", assistant: "薇真" },
@@ -892,7 +892,6 @@
       { id: 10, referee: "軒瑋", assistant: "宜苹" }
     ];
 
-    // 現場抽籤狀態字典 (teamId -> pairId，未抽為 null)
     let teamAssignments = {};
 
     // 工作人員與組別
@@ -1151,9 +1150,9 @@
     }
 
     /* -------------------------------------------------------------
-       5. 雙階段競賽計時器 (40分鐘撿拾 + 20分鐘分類)
+       5. 雙階段競賽計時器
     ------------------------------------------------------------- */
-    let currentStage = 1; // 1: 撿垃圾 (40m), 2: 分類 (20m)
+    let currentStage = 1;
     let remainingSeconds = 40 * 60;
     let isTimerRunning = false;
     let timerInterval = null;
@@ -1231,7 +1230,7 @@
     }
 
     /* -------------------------------------------------------------
-       6. 智慧計分與扣點引擎 (0ms 極速試算)
+       6. 智慧計分與扣點引擎
     ------------------------------------------------------------- */
     let redCardCount = 0;
     let evidencePhotos = [];
@@ -1279,18 +1278,15 @@
     }
 
     function calculateScore() {
-      // 讀取輸入值
       const gGen = parseFloat(document.getElementById('inputGeneral')?.value) || 0;
       const gRec = parseFloat(document.getElementById('inputRecycle')?.value) || 0;
       const gCig = parseFloat(document.getElementById('inputCigarette')?.value) || 0;
       const otSec = parseInt(document.getElementById('inputOvertimeSec')?.value, 10) || 0;
 
-      // 計算得點：一般 100g=10 (0.1/g)，回收 100g=20 (0.2/g)，菸蒂 50g=200 (4/g)
       const pGen = Math.round(gGen * 0.1 * 10) / 10;
       const pRec = Math.round(gRec * 0.2 * 10) / 10;
       const pCig = Math.round(gCig * 4.0 * 10) / 10;
 
-      // 違規扣分：逾時扣分 (每60秒扣10點)
       let otDeduct = 0;
       let isDisqualified = false;
       if (otSec > 600) {
@@ -1299,22 +1295,18 @@
         otDeduct = Math.ceil(otSec / 60) * 10;
       }
 
-      // 禁止項目勾選 (每項扣 100 點)
       let bannedDeduct = 0;
       if (document.getElementById('checkBannedLarge')?.checked) bannedDeduct += 100;
       if (document.getElementById('checkBannedDanger')?.checked) bannedDeduct += 100;
       if (document.getElementById('checkBannedPublic')?.checked) bannedDeduct += 100;
       if (document.getElementById('checkBannedNature')?.checked) bannedDeduct += 100;
 
-      // 紅牌處分 (每次扣 100 點)
       const redCardDeduct = redCardCount * 100;
       const totalDeductions = otDeduct + bannedDeduct + redCardDeduct;
 
-      // 結算總分 (不低於 0 分)
       const rawScore = (pGen + pRec + pCig) - totalDeductions;
       const finalScore = Math.max(0, Math.round(rawScore * 10) / 10);
 
-      // 更新看板
       const totalEl = document.getElementById('displayTotalPoints');
       const dedEl = document.getElementById('displayDeductions');
       const otTextEl = document.getElementById('displayOvertimeText');
@@ -1340,7 +1332,6 @@
         statusText.innerText = isDisqualified ? "取消資格" : "即時換算完成";
       }
 
-      // 微型看板
       const subGen = document.getElementById('subGeneral');
       const subRec = document.getElementById('subRecycle');
       const subCig = document.getElementById('subCigarette');
@@ -1467,7 +1458,6 @@
       playBeep(440, 'sine', 0.04);
     }
 
-    // 隨機抽籤 (Fisher-Yates)
     function randomDrawAllTeams() {
       const pairIds = REFEREE_PAIRS.map(p => p.id);
       for (let i = pairIds.length - 1; i > 0; i--) {
@@ -1695,7 +1685,7 @@
     }
 
     /* -------------------------------------------------------------
-       8. 海報元素 iOS 桌面圖示 (Apple Touch Icon) 動態渲染引擎
+       8. 海報元素 iOS 桌面圖示渲染
     ------------------------------------------------------------- */
     function renderAppIconToCanvas(canvasId, size = 180) {
       const canvas = document.getElementById(canvasId);
@@ -1705,11 +1695,11 @@
       const ctx = canvas.getContext('2d');
       if (!ctx) return null;
 
-      // 1. 活力綠漸層背景 (Poster Vibrant Forest Green)
+      // 1. 活力綠漸層背景
       const grad = ctx.createLinearGradient(0, 0, size, size);
-      grad.addColorStop(0, '#15803d'); // 翡翠深綠
-      grad.addColorStop(0.5, '#16a34a'); // 活力綠
-      grad.addColorStop(1, '#047857'); // 深林綠
+      grad.addColorStop(0, '#15803d');
+      grad.addColorStop(0.5, '#16a34a');
+      grad.addColorStop(1, '#047857');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, size, size);
 
@@ -1726,23 +1716,21 @@
       }
       ctx.restore();
 
-      // 3. 中央生態地球 (Blue Earth with Green Continents)
+      // 3. 中央生態地球
       const centerX = size / 2;
       const centerY = size / 2 - size * 0.04;
       const earthRadius = size * 0.28;
 
-      // 海洋外發光
       ctx.save();
       ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
       ctx.shadowBlur = size * 0.08;
       ctx.shadowOffsetY = size * 0.04;
       ctx.beginPath();
       ctx.arc(centerX, centerY, earthRadius, 0, Math.PI * 2);
-      ctx.fillStyle = '#0284c7'; // 蔚藍海洋
+      ctx.fillStyle = '#0284c7';
       ctx.fill();
       ctx.restore();
 
-      // 大陸綠洲輪廓 (陸地)
       ctx.fillStyle = '#22c55e';
       ctx.beginPath();
       ctx.arc(centerX - earthRadius * 0.3, centerY - earthRadius * 0.2, earthRadius * 0.45, 0, Math.PI * 2);
@@ -1754,7 +1742,7 @@
       ctx.arc(centerX - earthRadius * 0.1, centerY + earthRadius * 0.4, earthRadius * 0.35, 0, Math.PI * 2);
       ctx.fill();
 
-      // 4. 金屬撿垃圾夾子 (Metallic Tongs)
+      // 4. 金屬夾子
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate(-Math.PI / 4);
@@ -1762,16 +1750,14 @@
       ctx.strokeStyle = '#94a3b8';
       ctx.lineWidth = size * 0.02;
 
-      // 夾子兩臂
       ctx.fillRect(-size * 0.04, -size * 0.38, size * 0.035, size * 0.42);
       ctx.fillRect(size * 0.015, -size * 0.38, size * 0.035, size * 0.42);
-      // 夾頂彈簧圈
       ctx.beginPath();
       ctx.arc(size * 0.005, -size * 0.37, size * 0.045, 0, Math.PI, true);
       ctx.stroke();
       ctx.restore();
 
-      // 5. 頂部新生綠葉萌芽 (Poster Sprout Accent)
+      // 5. 新生綠葉萌芽
       ctx.save();
       ctx.translate(centerX + earthRadius * 0.3, centerY - earthRadius * 0.7);
       ctx.rotate(Math.PI / 6);
@@ -1786,7 +1772,7 @@
       // 6. 底部亮黃牌匾標誌: "SPOGOMI"
       const plaqueY = size - size * 0.26;
       ctx.save();
-      ctx.fillStyle = '#facc15'; // 亮黃牌底
+      ctx.fillStyle = '#facc15';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
       ctx.shadowBlur = 4;
       ctx.shadowOffsetY = 2;
@@ -1795,7 +1781,6 @@
       ctx.fill();
       ctx.restore();
 
-      // "SPOGOMI" 粗黑標題字
       ctx.fillStyle = '#0f172a';
       ctx.font = `900 ${Math.round(size * 0.12)}px 'Inter', sans-serif`;
       ctx.textAlign = 'center';
@@ -1813,16 +1798,11 @@
       return canvas.toDataURL('image/png');
     }
 
-    // 初始化自動設定 iOS 桌面圖示 Data URL
     function initAppleTouchIcon() {
-      // 渲染 PWA 安裝指引彈窗內的預覽圖示並正確宣告承接 DataURL
       const dataUrl = renderAppIconToCanvas('modalIconCanvas', 180);
-
-      // 若使用者設備未載入本地 apple-touch-icon.png，自動備份為動態生成之高畫質海報圖示
       const iconLink = document.getElementById('appleTouchIconLink');
       const favLink = document.getElementById('faviconLink');
       if (iconLink && dataUrl) {
-        // 先測試圖片是否存在，不存在則即時切換成 DataURL
         const imgTest = new Image();
         imgTest.onerror = () => {
           iconLink.href = dataUrl;
@@ -1832,7 +1812,6 @@
       }
     }
 
-    // 提供一鍵另存為 apple-touch-icon.png 檔案
     function downloadAppIcon() {
       const canvas = document.createElement('canvas');
       canvas.id = 'tempDownloadCanvas';
@@ -1862,17 +1841,15 @@
     }
 
     /* -------------------------------------------------------------
-       9. 應用程式全域初始化 (DOMContentLoaded 雙重防禦檢查)
+       9. 應用程式全域初始化
     ------------------------------------------------------------- */
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. 初始化隊伍抽籤狀態
       TEAMS_DATA.forEach(t => {
         if (teamAssignments[t.id] === undefined) {
           teamAssignments[t.id] = null;
         }
       });
 
-      // 2. 初始渲染視圖
       renderTeams(TEAMS_DATA);
       renderStaff(STAFF_DATA);
       renderEquipment(EQUIPMENT_DATA);
@@ -1880,10 +1857,8 @@
       updateTimerUI();
       calculateScore();
 
-      // 3. 初始生成海報元素 Apple Touch Icon
       initAppleTouchIcon();
 
-      // 4. 預設顯示總覽視圖
       switchTab('overview');
     });
   </script>
