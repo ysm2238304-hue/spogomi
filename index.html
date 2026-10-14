@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>南投 SPOGOMI 環境運動挑戰賽 - 現場工作手冊</title>
   
+  <!-- iOS PWA 原生應用支援與狀態列設定 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="南投SPOGOMI">
+  <meta name="theme-color" content="#047857">
+  
+  <!-- iOS 桌面圖示 (Apple Touch Icon - 方案A海報元素) -->
+  <link rel="apple-touch-icon" id="appleTouchIconLink" sizes="180x180" href="./images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" id="faviconLink" sizes="32x32" href="./images/apple-touch-icon.png">
+  
+  <!-- Web App Manifest (PWA 輕量配置) -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"南投 SPOGOMI 現場工作手冊","short_name":"南投SPOGOMI","start_url":"./","display":"standalone","background_color":"#064e3b","theme_color":"#047857"}'>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -96,11 +109,11 @@
           <span>淨好玩！南投 SPOGOMI</span>
         </h1>
       </div>
-      <div class="text-right">
-        <span class="text-[10px] block text-emerald-200 font-semibold">主會場：慈善宮廣場</span>
-        <span class="inline-block bg-white/20 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full mt-0.5 border border-white/20">
-          半徑 1.4 km
-        </span>
+      <div class="flex flex-col items-end gap-1">
+        <button onclick="openPwaInstallModal()" class="inline-flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-emerald-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm active:scale-95 transition">
+          <span>📲</span> 設為桌面 App
+        </button>
+        <span class="text-[9px] text-emerald-200 font-semibold">慈善宮廣場 • 半徑1.4km</span>
       </div>
     </div>
 
@@ -136,7 +149,7 @@
     <!-- 視圖 1: 賽事總覽 & 議程 (TAB: OVERVIEW)     -->
     <!-- ========================================== -->
     <section id="viewOverview" class="space-y-3.5">
-      
+
       <!-- 活動基本資訊卡 -->
       <div class="bg-white rounded-2xl p-4 ios-card border border-slate-200/80 space-y-2.5">
         <div class="flex items-center justify-between">
@@ -702,6 +715,48 @@
     </section>
 
   </main>
+
+  <!-- iOS「加入主畫面」指引與圖示下載彈窗 (PWA Guide Modal) -->
+  <div id="pwaModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-black text-slate-800 flex items-center gap-1.5">
+          <span>📲</span> 如何加入 iPhone 桌面 App
+        </h3>
+        <button onclick="closePwaInstallModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="flex items-center gap-3 bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
+        <canvas id="modalIconCanvas" width="64" height="64" class="w-16 h-16 rounded-2xl shadow border border-emerald-300"></canvas>
+        <div class="text-xs">
+          <span class="font-black text-emerald-950 block">南投 SPOGOMI 官方圖示</span>
+          <span class="text-[10px] text-emerald-800">已萃取海報地球、金屬夾與活力綠色系</span>
+          <button onclick="downloadAppIcon()" class="mt-1 bg-emerald-700 text-white text-[10px] font-black px-2 py-0.5 rounded-lg active:scale-95 transition">
+            儲存圖示到相簿
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs text-slate-700">
+        <div class="flex items-start gap-2">
+          <span class="w-5 h-5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px] flex items-center justify-center shrink-0">1</span>
+          <p>在 iPhone Safari 點擊底部的 <b>「分享」按鈕</b> (<span class="font-bold">􀈂</span> 圖示)。</p>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="w-5 h-5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px] flex items-center justify-center shrink-0">2</span>
+          <p>向上滑動選單，點選 <b>「加入主畫面」</b> (+ 號圖示)。</p>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="w-5 h-5 rounded-full bg-amber-400 text-emerald-950 font-black text-[11px] flex items-center justify-center shrink-0">3</span>
+          <p>名稱確認為 <b>「南投SPOGOMI」</b>，點擊右上角「新增」即完成！</p>
+        </div>
+      </div>
+
+      <button onclick="closePwaInstallModal()" class="w-full bg-emerald-700 text-white font-black py-2.5 rounded-2xl shadow active:scale-95 transition text-xs">
+        我知道了，開始使用
+      </button>
+    </div>
+  </div>
 
   <!-- 底部 iOS 原生風格分頁導航欄 (Tab Bar) -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 z-40 py-1.5 px-3">
@@ -1640,7 +1695,174 @@
     }
 
     /* -------------------------------------------------------------
-       8. 應用程式全域初始化 (DOMContentLoaded 雙重防禦檢查)
+       8. 海報元素 iOS 桌面圖示 (Apple Touch Icon) 動態渲染引擎
+    ------------------------------------------------------------- */
+    function renderAppIconToCanvas(canvasId, size = 180) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return null;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      // 1. 活力綠漸層背景 (Poster Vibrant Forest Green)
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, '#15803d'); // 翡翠深綠
+      grad.addColorStop(0.5, '#16a34a'); // 活力綠
+      grad.addColorStop(1, '#047857'); // 深林綠
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // 2. 陽光射線微光背景裝飾
+      ctx.save();
+      ctx.translate(size / 2, size / 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      for (let i = 0; i < 12; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, size * 0.7, (i * Math.PI) / 6, (i * Math.PI) / 6 + Math.PI / 12);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 3. 中央生態地球 (Blue Earth with Green Continents)
+      const centerX = size / 2;
+      const centerY = size / 2 - size * 0.04;
+      const earthRadius = size * 0.28;
+
+      // 海洋外發光
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+      ctx.shadowBlur = size * 0.08;
+      ctx.shadowOffsetY = size * 0.04;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, earthRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#0284c7'; // 蔚藍海洋
+      ctx.fill();
+      ctx.restore();
+
+      // 大陸綠洲輪廓 (陸地)
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath();
+      ctx.arc(centerX - earthRadius * 0.3, centerY - earthRadius * 0.2, earthRadius * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(centerX + earthRadius * 0.35, centerY + earthRadius * 0.15, earthRadius * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(centerX - earthRadius * 0.1, centerY + earthRadius * 0.4, earthRadius * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 4. 金屬撿垃圾夾子 (Metallic Tongs)
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(-Math.PI / 4);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = size * 0.02;
+
+      // 夾子兩臂
+      ctx.fillRect(-size * 0.04, -size * 0.38, size * 0.035, size * 0.42);
+      ctx.fillRect(size * 0.015, -size * 0.38, size * 0.035, size * 0.42);
+      // 夾頂彈簧圈
+      ctx.beginPath();
+      ctx.arc(size * 0.005, -size * 0.37, size * 0.045, 0, Math.PI, true);
+      ctx.stroke();
+      ctx.restore();
+
+      // 5. 頂部新生綠葉萌芽 (Poster Sprout Accent)
+      ctx.save();
+      ctx.translate(centerX + earthRadius * 0.3, centerY - earthRadius * 0.7);
+      ctx.rotate(Math.PI / 6);
+      ctx.fillStyle = '#84cc16';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(size * 0.1, -size * 0.08, size * 0.12, -size * 0.16);
+      ctx.quadraticCurveTo(0, -size * 0.14, 0, 0);
+      ctx.fill();
+      ctx.restore();
+
+      // 6. 底部亮黃牌匾標誌: "SPOGOMI"
+      const plaqueY = size - size * 0.26;
+      ctx.save();
+      ctx.fillStyle = '#facc15'; // 亮黃牌底
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
+      ctx.beginPath();
+      ctx.roundRect(size * 0.08, plaqueY, size * 0.84, size * 0.18, size * 0.06);
+      ctx.fill();
+      ctx.restore();
+
+      // "SPOGOMI" 粗黑標題字
+      ctx.fillStyle = '#0f172a';
+      ctx.font = `900 ${Math.round(size * 0.12)}px 'Inter', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('SPOGOMI', centerX, plaqueY + size * 0.095);
+
+      // 7. 頂部小標籤: "南投"
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = `900 ${Math.round(size * 0.12)}px 'Noto Sans TC', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 3;
+      ctx.fillText('南投', centerX, size * 0.13);
+
+      return canvas.toDataURL('image/png');
+    }
+
+    // 初始化自動設定 iOS 桌面圖示 Data URL
+    function initAppleTouchIcon() {
+      // 渲染 PWA 安裝指引彈窗內的預覽圖示並正確宣告承接 DataURL
+      const dataUrl = renderAppIconToCanvas('modalIconCanvas', 180);
+
+      // 若使用者設備未載入本地 apple-touch-icon.png，自動備份為動態生成之高畫質海報圖示
+      const iconLink = document.getElementById('appleTouchIconLink');
+      const favLink = document.getElementById('faviconLink');
+      if (iconLink && dataUrl) {
+        // 先測試圖片是否存在，不存在則即時切換成 DataURL
+        const imgTest = new Image();
+        imgTest.onerror = () => {
+          iconLink.href = dataUrl;
+          if (favLink) favLink.href = dataUrl;
+        };
+        imgTest.src = iconLink.href;
+      }
+    }
+
+    // 提供一鍵另存為 apple-touch-icon.png 檔案
+    function downloadAppIcon() {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'tempDownloadCanvas';
+      document.body.appendChild(canvas);
+      const dataUrl = renderAppIconToCanvas('tempDownloadCanvas', 180);
+      document.body.removeChild(canvas);
+
+      if (!dataUrl) return;
+      const link = document.createElement('a');
+      link.download = 'apple-touch-icon.png';
+      link.href = dataUrl;
+      link.click();
+      showToast("已產生海報圖示 (apple-touch-icon.png)", "🎨");
+      playBeep(700, 'triangle', 0.1);
+    }
+
+    function openPwaInstallModal() {
+      const modal = document.getElementById('pwaModal');
+      if (modal) modal.classList.remove('hidden');
+      playBeep(600, 'sine', 0.05);
+    }
+
+    function closePwaInstallModal() {
+      const modal = document.getElementById('pwaModal');
+      if (modal) modal.classList.add('hidden');
+      playBeep(440, 'sine', 0.04);
+    }
+
+    /* -------------------------------------------------------------
+       9. 應用程式全域初始化 (DOMContentLoaded 雙重防禦檢查)
     ------------------------------------------------------------- */
     window.addEventListener('DOMContentLoaded', () => {
       // 1. 初始化隊伍抽籤狀態
@@ -1658,7 +1880,10 @@
       updateTimerUI();
       calculateScore();
 
-      // 3. 預設顯示總覽視圖
+      // 3. 初始生成海報元素 Apple Touch Icon
+      initAppleTouchIcon();
+
+      // 4. 預設顯示總覽視圖
       switchTab('overview');
     });
   </script>
